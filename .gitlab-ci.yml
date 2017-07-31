@@ -56,10 +56,18 @@ release-image-prod:
   only:
     - master
 
-deploy:
+deploy-dev:
   stage: deploy
   image: cdrx/rancher-gitlab-deploy
   script:
-    - upgrade --environment dev --stack acropole --service go-test
+    - upgrade --environment dev --stack acropole-dev --service bot
   only:
     - master
+
+deploy-prod:
+  stage: deploy
+  image: cdrx/rancher-gitlab-deploy
+  script:
+    - upgrade --environment dev --stack acropole --service bot
+  only:
+    - develop
