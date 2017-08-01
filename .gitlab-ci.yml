@@ -62,7 +62,7 @@ deploy-dev:
   script:
     - upgrade --environment dev --stack acropole-dev --service bot
   only:
-    - master
+    - develop
 
 deploy-prod:
   stage: deploy
@@ -70,4 +70,4 @@ deploy-prod:
   script:
     - upgrade --environment dev --stack acropole --service bot
   only:
-    - develop
+    - master
