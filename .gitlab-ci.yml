@@ -4,8 +4,8 @@ services:
   - docker:dind
 
 variables:
-  CONTAINER_CI_IMAGE: registry.gitlab.com/one-more/acropole:$CI_COMMIT_REF_NAME
-  CONTAINER_DEV_IMAGE: registry.gitlab.com/one-more/acropole-dev:latest
+  CONTAINER_CI_IMAGE: registry.gitlab.com/one-more/acropole/ci:$CI_COMMIT_REF_NAME
+  CONTAINER_DEV_IMAGE: registry.gitlab.com/one-more/acropole/dev:latest
   CONTAINER_RELEASE_IMAGE: registry.gitlab.com/one-more/acropole:latest
 
 stages:
@@ -39,7 +39,7 @@ release-image-dev:
   stage: release
   script:
     - docker pull $CONTAINER_CI_IMAGE
-    - docker tag $CONTAINER_CI_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker tag $CONTAINER_CI_IMAGE $CONTAINER_DEV_IMAGE
     - docker push $CONTAINER_DEV_IMAGE
   only:
     - develop
@@ -56,10 +56,18 @@ release-image-prod:
   only:
     - master
 
-deploy:
+deploy-dev:
   stage: deploy
   image: cdrx/rancher-gitlab-deploy
   script:
-    - upgrade --environment dev --stack acropole --service go-test
+    - upgrade --environment dev --stack acropole-dev --service bot
   only:
     - master
+
+deploy-prod:
+  stage: deploy
+  image: cdrx/rancher-gitlab-deploy
+  script:
+    - upgrade --environment dev --stack acropole --service bot
+  only:
+    - develop

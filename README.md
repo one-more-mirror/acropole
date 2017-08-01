@@ -10,9 +10,9 @@ These instructions will get you a local discord bot running.
 
 You just have to have [Docker](https://docs.docker.com/engine/installation/) installed
 
-### Installation
+### Usage
 
-```
+```sh
 docker run registry.gitlab.com/one-more/acropole:master -e BOT_TOKEN="Bot xxxxxxx"
 ```
 
@@ -20,29 +20,81 @@ docker run registry.gitlab.com/one-more/acropole:master -e BOT_TOKEN="Bot xxxxxx
 
 To use a development version of Acropole, start by cloning the repository.
 
-```
+```sh
 git clone https://gitlab.com/one-more/acropole.git
 cd acropole
 ```
 
-Then, you build it locally and run it with you own bot token.
+You have to build development image locally
 
+```sh
+docker build \
+    --build-arg app_env=development \
+    -t one-more/acropole .
 ```
-scripts/build.dev.sh
-scripts/run.dev.sh "Bot xxxxxxx"
+
+You can now run it
+
+```sh
+docker run \
+    -it \
+    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
+    --name acropole \
+    one-more/acropole
 ```
 
 ### Testing
 
-You can launch the test after building if you haven't done it yet.
+You need to have the image build to run tests
 
-```
-scripts/build.dev.sh
-```
-
-Then, just run the test script.
-
-```
-scripts/test.dev.sh "Bot xxxxxxx"
+```sh
+ docker run \
+    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
+    -e APP_ENV=testing \
+    one-more/acropole
 ```
 
+## Work behind proxy
+
+### Build
+
+To build it behind with proxy:
+
+Build command: 
+```sh
+docker build \
+    --build-arg "HTTP_PROXY=<PROXY_URL>" \
+    --build-arg "HTTPS_PROXY=<PROXY_URL>" \
+    --build-arg "http_proxy=<PROXY_URL>" \
+    --build-arg "https_proxy=<PROXY_URL>" \
+    --build-arg app_env=development \
+    -t one-more/acropole .
+```
+
+Run command:
+```sh
+docker run \
+    -it \
+    -e "HTTP_PROXY=<PROXY_URL>" \
+    -e "HTTPS_PROXY=<PROXY_URL>" \
+    -e "http_proxy=<PROXY_URL>" \
+    -e "https_proxy=<PROXY_URL>" \
+    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
+    --name acropole \
+    one-more/acropole
+```
+
+### Test
+
+To run tests it behind with proxy:
+
+```sh
+ docker run \
+    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
+    -e "HTTP_PROXY=<PROXY_URL>" \
+    -e "HTTPS_PROXY=<PROXY_URL>" \
+    -e "http_proxy=<PROXY_URL>" \
+    -e "https_proxy=<PROXY_URL>" \
+    -e APP_ENV=testing \
+    one-more/acropole
+```
