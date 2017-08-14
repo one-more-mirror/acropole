@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/spf13/viper"
 	"github.com/bwmarrin/discordgo"
+	"gopkg.in/mgo.v2"
 	"fmt"
 	"os"
 	"os/signal"
@@ -9,13 +11,22 @@ import (
 )
 
 func main() {
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig() // Find and read the config file
 
-	var token string = os.Getenv("BOT_TOKEN")
-
-	if token == "" {
-		fmt.Println("No environment variable BOT_TOKEN passed")
-		return
+	if err != nil { // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
+
+	session, err := mgo.Dial(viper.GetString("mongodb.host"))
+	if err != nil {
+		panic(err)
+	}
+
+	defer session.Close()
+
+	var token string = "Bot " + viper.GetString("discord.token")
 
 	discord, err := discordgo.New(token)
 

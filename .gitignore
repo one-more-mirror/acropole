@@ -15,3 +15,8 @@
 
 # User-specific Intellij stuff:
 .idea/
+
+# Config file
+app/config.yml
+
+/app/tmp/
