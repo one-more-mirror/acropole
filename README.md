@@ -25,22 +25,23 @@ git clone https://gitlab.com/one-more/acropole.git
 cd acropole
 ```
 
+Setup bot token in config.yml file:
+
+```sh
+mv app/config.example.yml app/config.yml
+nano app/config.yml
+```
+
 You have to build development image locally
 
 ```sh
-docker build \
-    --build-arg app_env=development \
-    -t one-more/acropole .
+docker-compose build
 ```
 
 You can now run it
 
 ```sh
-docker run \
-    -it \
-    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
-    --name acropole \
-    one-more/acropole
+docker-compose up
 ```
 
 ### Testing
@@ -48,53 +49,14 @@ docker run \
 You need to have the image build to run tests
 
 ```sh
+docker build \
+    -t one-more/acropole .
+
  docker run \
-    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
     -e APP_ENV=testing \
     one-more/acropole
 ```
 
 ## Work behind proxy
 
-### Build
-
-To build it behind with proxy:
-
-Build command: 
-```sh
-docker build \
-    --build-arg "HTTP_PROXY=<PROXY_URL>" \
-    --build-arg "HTTPS_PROXY=<PROXY_URL>" \
-    --build-arg "http_proxy=<PROXY_URL>" \
-    --build-arg "https_proxy=<PROXY_URL>" \
-    --build-arg app_env=development \
-    -t one-more/acropole .
-```
-
-Run command:
-```sh
-docker run \
-    -it \
-    -e "HTTP_PROXY=<PROXY_URL>" \
-    -e "HTTPS_PROXY=<PROXY_URL>" \
-    -e "http_proxy=<PROXY_URL>" \
-    -e "https_proxy=<PROXY_URL>" \
-    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
-    --name acropole \
-    one-more/acropole
-```
-
-### Test
-
-To run tests it behind with proxy:
-
-```sh
- docker run \
-    -e "BOT_TOKEN=Bot xxxxxxxxxxxxxxxxxxxxxxx"  \
-    -e "HTTP_PROXY=<PROXY_URL>" \
-    -e "HTTPS_PROXY=<PROXY_URL>" \
-    -e "http_proxy=<PROXY_URL>" \
-    -e "https_proxy=<PROXY_URL>" \
-    -e APP_ENV=testing \
-    one-more/acropole
-```
+Coming soon

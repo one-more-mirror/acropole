@@ -1,0 +1,19 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+
+  mongo-seed:
+    build: ./mongo-seed
+    links:
+      - mongo
+
+  bot:
+    build:
+      context: .
+      args:
+        app_env: development
+    volumes:
+      - ./app:/go/src/gitlab.com/one-more/acropole/app
+    links:
+      - mongo

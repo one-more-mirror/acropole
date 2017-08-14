@@ -4,7 +4,7 @@ services:
   - docker:dind
 
 variables:
-  CONTAINER_CI_IMAGE: registry.gitlab.com/one-more/acropole/ci:$CI_COMMIT_REF_NAME
+  CONTAINER_CI_IMAGE: registry.gitlab.com/one-more/acropole/ci:$CI_COMMIT_REF_SLUG
   CONTAINER_DEV_IMAGE: registry.gitlab.com/one-more/acropole/dev:latest
   CONTAINER_RELEASE_IMAGE: registry.gitlab.com/one-more/acropole:latest
 
