@@ -3,12 +3,31 @@ package main
 import (
 	"github.com/spf13/viper"
 	"github.com/bwmarrin/discordgo"
+	"github.com/kr/pretty"
 	"gopkg.in/mgo.v2"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 )
+
+type mongoConfig struct {
+	Username string
+	Password string
+	Host     string
+	Port     int
+}
+
+type discordConfig struct {
+	Token    string
+	Username string
+	Password string
+}
+
+type config struct {
+	Mongodb mongoConfig
+	Discord discordConfig
+}
 
 func main() {
 	viper.SetConfigName("config")
@@ -18,15 +37,24 @@ func main() {
 	if err != nil { // Handle errors reading the config file
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
+	viper.AllSettings()
+	var config config
 
-	session, err := mgo.Dial(viper.GetString("mongodb.host"))
+	err = viper.Unmarshal(&config)
+
+	if err != nil { // Handle errors reading the config file
+		panic(fmt.Errorf("Invalid config file: %s \n", err))
+	}
+
+	session, err := mgo.Dial(config.Mongodb.Host)
+
 	if err != nil {
 		panic(err)
 	}
 
 	defer session.Close()
 
-	var token string = "Bot " + viper.GetString("discord.token")
+	var token string = "Bot " + config.Discord.Token
 
 	discord, err := discordgo.New(token)
 
@@ -66,7 +94,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!!!!")
+		s.ChannelMessageSend(m.ChannelID, "Pong local!!!!")
 	}
 
 	// If the message is "pong" reply with "Ping!"

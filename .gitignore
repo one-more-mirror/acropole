@@ -20,3 +20,4 @@
 app/config.yml
 
 /app/tmp/
+/docker-compose.proxy.yml
