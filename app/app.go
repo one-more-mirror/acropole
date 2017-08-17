@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/viper"
 	"github.com/bwmarrin/discordgo"
-	"github.com/kr/pretty"
 	"gopkg.in/mgo.v2"
 	"fmt"
 	"os"
