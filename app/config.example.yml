@@ -1,0 +1,10 @@
+discord:
+  token: '<YOUR_TOKEN_HERE>'
+  username: null
+  password: null
+
+mongodb:
+  username: 'user'
+  password: 'password'
+  host: mongo
+  port: 27017
