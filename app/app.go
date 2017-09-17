@@ -8,24 +8,25 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	. "./dao"
 )
 
-type mongoConfig struct {
+type MongoConfig struct {
 	Username string
 	Password string
 	Host     string
 	Port     int
 }
 
-type discordConfig struct {
+type DiscordConfig struct {
 	Token    string
 	Username string
 	Password string
 }
 
-type config struct {
-	Mongodb mongoConfig
-	Discord discordConfig
+type Config struct {
+	Mongodb MongoConfig
+	Discord DiscordConfig
 }
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 	viper.AllSettings()
-	var config config
+	var config Config
 
 	err = viper.Unmarshal(&config)
 
@@ -71,6 +72,10 @@ func main() {
 		fmt.Println("error opening connection,", err)
 		return
 	}
+
+	// Application logic
+	dao := Dao{}
+	fmt.Print(dao)
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running!  Press CTRL-C to exit.")
