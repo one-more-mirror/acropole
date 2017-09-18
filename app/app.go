@@ -1,61 +1,36 @@
 package main
 
 import (
-	"github.com/spf13/viper"
 	"github.com/bwmarrin/discordgo"
-	"gopkg.in/mgo.v2"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
-	. "./dao"
+	"gitlab.com/one-more/acropole/app/dao"
+	"gitlab.com/one-more/acropole/app/config"
+	"gitlab.com/one-more/acropole/app/interface"
+	"gitlab.com/one-more/acropole/app/service"
 )
 
-type MongoConfig struct {
-	Username string
-	Password string
-	Host     string
-	Port     int
-}
-
-type DiscordConfig struct {
-	Token    string
-	Username string
-	Password string
-}
-
-type Config struct {
-	Mongodb MongoConfig
-	Discord DiscordConfig
-}
-
 func main() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig() // Find and read the config file
 
-	if err != nil { // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
-	viper.AllSettings()
-	var config Config
+	// Initialize configuration
+	config := config.InitConfig()
 
-	err = viper.Unmarshal(&config)
-
-	if err != nil { // Handle errors reading the config file
-		panic(fmt.Errorf("Invalid config file: %s \n", err))
-	}
-
-	session, err := mgo.Dial(config.Mongodb.Host)
+	// Database connection initialisation
+	dao, err := dao.NewDao(config.Mongodb)
 
 	if err != nil {
 		panic(err)
 	}
 
-	defer session.Close()
+	defer dao.Close()
 
-	var token string = "Bot " + config.Discord.Token
+	// Service initialisation
+	serviceInstance := &service.Service{Dao: dao}
 
+	// Connect to Discord
+	var token string = "Bot " + config.Discord.Token // TODO: handle user/password connection to Discord
 	discord, err := discordgo.New(token)
 
 	if err != nil {
@@ -63,28 +38,31 @@ func main() {
 		return
 	}
 
-	// Register the messageCreate func as a callback for MessageCreate events.
-	discord.AddHandler(messageCreate)
+	discordInterface := _interface.Interface{Discord: discord, Service: serviceInstance}
+	err = discordInterface.InitInterfaces()
+
+	if err != nil {
+		fmt.Println("error while interfacing with discord,", err)
+		return
+	}
 
 	// Open a websocket connection to Discord and begin listening.
 	err = discord.Open()
+
 	if err != nil {
 		fmt.Println("error opening connection,", err)
 		return
 	}
 
-	// Application logic
-	dao := Dao{}
-	fmt.Print(dao)
+	defer discord.Close()
+
+	fmt.Println("Bot is now running!")
 
 	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running!  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
-	// Cleanly close down the Discord session.
-	discord.Close()
 }
 
 // This function will be called (due to AddHandler above) every time a new
