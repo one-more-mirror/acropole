@@ -1,33 +1,21 @@
 package dao
 
-import (
-	"gopkg.in/mgo.v2"
-	model "../model"
-)
+import "gitlab.com/one-more/acropole/app/config"
 
 type Dao struct {
-	session *mgo.Session
+	db *Db
 }
 
-func (dao *Dao) GetPools() ([]*model.Poll, error) {
-	pools := []*model.Poll{
-		{
-			Votes: []*model.Vote{
-				{
-					Time: nil,
-					User: nil,
-					Yes:  true,
-				},
-				{
-					Time: nil,
-					User: nil,
-					Yes:  false,
-				},
-			},
-			Creator: nil,
-			Id:      1,
-		},
+func NewDao(config config.MongoConfig) (*Dao, error) {
+	db, err := newDb(config)
+
+	if err != nil {
+		return nil, err
 	}
 
-	return pools, nil
+	return &Dao{db: db}, nil
+}
+
+func (dao *Dao) Close() {
+	dao.db.Close()
 }

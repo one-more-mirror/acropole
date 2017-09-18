@@ -10,12 +10,6 @@ These instructions will get you a local discord bot running.
 
 You just have to have [Docker](https://docs.docker.com/engine/installation/) installed
 
-### Usage
-
-```sh
-docker run registry.gitlab.com/one-more/acropole:master -e BOT_TOKEN="Bot xxxxxxx"
-```
-
 ## Development
 
 To use a development version of Acropole, start by cloning the repository.

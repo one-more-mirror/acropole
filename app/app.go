@@ -15,22 +15,31 @@ import (
 func main() {
 
 	// Initialize configuration
-	config := config.InitConfig()
+	configInstance := config.InitConfig()
 
-	// Database connection initialisation
-	dao, err := dao.NewDao(config.Mongodb)
+	/*
+	 * DAO layer initialisation
+	 */
+
+	daoInstance, err := dao.NewDao(configInstance.Mongodb)
 
 	if err != nil {
 		panic(err)
 	}
 
-	defer dao.Close()
+	defer daoInstance.Close()
 
-	// Service initialisation
-	serviceInstance := &service.Service{Dao: dao}
+	/*
+	 * Service layer initialisation
+	 */
 
-	// Connect to Discord
-	var token string = "Bot " + config.Discord.Token // TODO: handle user/password connection to Discord
+	serviceInstance := &service.Service{Dao: daoInstance}
+
+	/*
+	 * Interface layer initialisation
+	 */
+
+	var token string = "Bot " + configInstance.Discord.Token // TODO: handle user/password connection to Discord
 	discord, err := discordgo.New(token)
 
 	if err != nil {
@@ -39,17 +48,14 @@ func main() {
 	}
 
 	discordInterface := _interface.Interface{Discord: discord, Service: serviceInstance}
-	err = discordInterface.InitInterfaces()
 
-	if err != nil {
+	if err = discordInterface.InitInterfaces(); err != nil {
 		fmt.Println("error while interfacing with discord,", err)
 		return
 	}
 
 	// Open a websocket connection to Discord and begin listening.
-	err = discord.Open()
-
-	if err != nil {
+	if err = discord.Open(); err != nil {
 		fmt.Println("error opening connection,", err)
 		return
 	}
@@ -63,24 +69,4 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
-}
-
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the autenticated bot has access to.
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-	// If the message is "ping" reply with "Pong!"
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong local!!!!")
-	}
-
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping! :)")
-	}
 }
