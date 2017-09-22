@@ -17,7 +17,7 @@
 .idea/
 
 # Config file
-app/config.yml
+app/cmd/config.yml
 
 /app/tmp/
 /docker-compose.proxy.yml

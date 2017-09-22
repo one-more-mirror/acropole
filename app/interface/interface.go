@@ -2,20 +2,29 @@ package _interface
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/one-more/acropole/app/service"
+	"gitlab.com/one-more/acropole/app"
 )
 
+var handlers = []Handler{
+	&BanPollHandler{},
+	&KickPollHandler{},
+	&VoteHandler{},
+}
+
 type Interface struct {
-	Discord *discordgo.Session
-	Service *service.Service
+	Discord     *discordgo.Session
+	PollService acropole.PollService
 }
 
-type Handler interface {
-	addHandler(discord *discordgo.Session)
-}
+func NewInterface(s *discordgo.Session, ps acropole.PollService) (Interface, error) {
+	i := Interface{
+		Discord:     s,
+		PollService: ps,
+	}
 
-func (i *Interface) InitInterfaces() error {
-	i.addPollHandlers()
+	for _, h := range handlers {
+		i.Discord.AddHandler(h.Handle())
+	}
 
-	return nil
+	return i, nil
 }
